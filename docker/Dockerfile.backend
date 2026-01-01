@@ -1,0 +1,38 @@
+# 第一阶段：构建阶段
+FROM maven:3.9-eclipse-temurin-17 AS builder
+
+WORKDIR /app
+
+# 复制 pom.xml 文件
+COPY backend/pom.xml .
+
+# 复制所有模块
+COPY backend/common ./common
+COPY backend/user-service ./user-service
+COPY backend/product-service ./product-service
+COPY backend/order-service ./order-service
+COPY backend/payment-service ./payment-service
+COPY backend/inventory-service ./inventory-service
+COPY backend/gateway-service ./gateway-service
+
+# 构建项目
+RUN mvn clean package -DskipTests -q
+
+# 第二阶段：运行阶段
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+# 安装 curl 用于健康检查
+RUN apk add --no-cache curl
+
+# 从构建阶段复制 JAR 文件
+# 这里需要根据实际的服务名称来复制相应的 JAR 文件
+ARG SERVICE_NAME=user-service
+COPY --from=builder /app/${SERVICE_NAME}/target/${SERVICE_NAME}-1.0.0.jar app.jar
+
+# 暴露端口
+EXPOSE 8080
+
+# 启动应用
+ENTRYPOINT ["java", "-jar", "app.jar"]

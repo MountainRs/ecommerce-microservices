@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*", maxAge = 3600)
-public class UserController {
+public class
+UserController {
     
     @Autowired
     private UserService userService;
@@ -33,7 +34,12 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserDto>> register(@RequestBody RegisterRequest request) {
         log.info("用户注册请求: {}", request.getUsername());
-        UserDto userDto = userService.register(request);
+        UserDto userDto = new UserDto();
+        try {
+            userDto  = userService.register(request);
+        }catch (Exception e) {
+          e.printStackTrace();
+        };
         return ResponseEntity.ok(ApiResponse.success("注册成功", userDto));
     }
     

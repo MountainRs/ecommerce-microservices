@@ -1,20 +1,20 @@
 import http from './http'
 
 export interface LoginRequest {
-  username: string
+  usersname: string
   password: string
 }
 
 export interface LoginResponse {
-  userId: number
-  username: string
+  usersId: number
+  usersname: string
   token: string
   tokenType: string
   expiresIn: number
 }
 
 export interface RegisterRequest {
-  username: string
+  usersname: string
   email: string
   password: string
   confirmPassword: string
@@ -22,9 +22,9 @@ export interface RegisterRequest {
   realName?: string
 }
 
-export interface UserInfo {
+export interface usersInfo {
   id: number
-  username: string
+  usersname: string
   email: string
   phone?: string
   realName?: string
@@ -44,27 +44,27 @@ export const login = (data: LoginRequest): Promise<LoginResponse> => {
 /**
  * 用户注册
  */
-export const register = (data: RegisterRequest): Promise<UserInfo> => {
+export const register = (data: RegisterRequest): Promise<usersInfo> => {
   return http.post('/users/register', data)
 }
 
 /**
  * 获取当前用户信息
  */
-export const getCurrentUser = (): Promise<UserInfo> => {
+export const getCurrentusers = (): Promise<usersInfo> => {
   return http.get('/users/me')
 }
 
 /**
  * 根据 ID 获取用户信息
  */
-export const getUserById = (userId: number): Promise<UserInfo> => {
-  return http.get(`/users/${userId}`)
+export const getusersById = (usersId: number): Promise<usersInfo> => {
+  return http.get(`/users/${usersId}`)
 }
 
 /**
  * 更新用户信息
  */
-export const updateUser = (userId: number, data: Partial<UserInfo>): Promise<UserInfo> => {
-  return http.put(`/users/${userId}`, data)
+export const updateusers = (usersId: number, data: Partial<usersInfo>): Promise<usersInfo> => {
+  return http.put(`/users/${usersId}`, data)
 }

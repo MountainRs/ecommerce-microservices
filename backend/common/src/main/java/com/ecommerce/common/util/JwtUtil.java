@@ -67,13 +67,14 @@ public class JwtUtil {
     /**
      * 验证 Token
      */
-    public Boolean validateToken(String token) {
+    public boolean validateToken(String token) { // 建议使用基本类型 boolean
         try {
             SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
+            // JJWT 0.12.x 新写法
+            Jwts.parser()
+                    .verifyWith(key) // 替换 setSigningKey
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token); // 替换 parseClaimsJws
             return true;
         } catch (Exception e) {
             log.error("Token 验证失败: {}", e.getMessage());
@@ -96,27 +97,30 @@ public class JwtUtil {
         Claims claims = getAllClaimsFromToken(token);
         return claims.get("username", String.class);
     }
-    
+
     /**
      * 从 Token 中获取所有声明
      */
     private Claims getAllClaimsFromToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+        return Jwts.parser()                    // 0.12.x 使用 parser() 代替 parserBuilder()
+                .verifyWith(key)               // 使用 verifyWith 代替 setSigningKey
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)      // 使用 parseSignedClaims 代替 parseClaimsJws
+                .getPayload();                 // 使用 getPayload() 代替 getBody()
     }
-    
+
     /**
      * 检查 Token 是否过期
      */
-    public Boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         try {
             Claims claims = getAllClaimsFromToken(token);
-            return claims.getExpiration().before(new Date());
+            // 如果 claims 为空或 getExpiration 返回空，需要处理空指针
+            Date expiration = claims.getExpiration();
+            return expiration.before(new Date());
         } catch (Exception e) {
+            // 解析失败或过期都会进入这里
             return true;
         }
     }
